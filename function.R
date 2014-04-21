@@ -43,24 +43,23 @@ em.censurada=function(y,x,c,n){
   #c valor en el que están truncadas las observaciones
   cen=y>=c
   no.cen=y<c
-  on=cen*1
   ly=lm(y[no.cen]~X[no.cen,-1])
   b=coef(ly)
   sigma=deviance(ly)/df.residual(ly)
   for(i in 1:n){
     media=c(X%*%b)
-    z=c(y-media)/sigma
-    sesgo=c(sigma*dnorm(z)/(1-pnorm(z)))
+    z=(y-media)/sigma
+    sesgo=sigma*dnorm(z)/(1-pnorm(z))
     #y.old=y.new
-    y.new=c(media+sesgo)*on + y*(1-on)
-    ly=lm(y.new~X[,-1])
+    y[cen]=c(media+sesgo)[cen]
+    ly=lm(y~X[,-1])
     b=coef(ly)
-    suma=sum((z*sesgo*sigma+sigma^2-sesgo^2)
-              *on)
+    suma=sum((z*sesgo*sigma+sigma^2-sesgo^2)[cen])
     sigma=(deviance(ly)+suma)/df.residual(ly)
     cat(media[cen],fill=T)
+    #cat(sesgo, fill=T)
   if(i==n){
-    return(list(coefficients=b, variance=sigma,y=y.new))
+    return(list(coefficients=b, variance=sigma,y=y))
   }#cierra if(i==n){
   } #for(i in 1:n){
 }#cierra function(y,xc,xsc)
