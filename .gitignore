@@ -4,7 +4,6 @@
 *.tex
 *.aux
 *.log
-*.pdf
 *.ps
 *.dvi
 *.ps
