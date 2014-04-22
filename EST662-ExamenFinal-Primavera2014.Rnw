@@ -1,0 +1,82 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage[round, authoryear]{natbib}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage{kpfonts}
+\decimalpoint
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\author{Christian I. Ponce}
+\title{EST 662 - Examen final - Primavera 2014}
+\begin{document}
+<<setup, echo=FALSE>>=
+library("knitr")
+library("xtable")
+opts_chunk$set(echo=TRUE, cache=TRUE, cache.path="cache/", fig.path="figures/", out.width="0.7\\linewidth", crop=TRUE, fig.width=10, fig.height=6, fig.align="center", fig.pos="h", dev=c("cairo_pdf","cairo_ps"), results="asis", message=FALSE, warning=FALSE)
+@
+<<scripts, echo=FALSE, cache=FALSE>>=
+read_chunk('function.R')
+@
+\maketitle
+\section{Creación de la muestra}
+\subsection{Matriz $\mathbf{X}$}
+<<X*>>=
+@
+Generar una matriz de $X$, $dim(X)=25\times10$
+<<x>>=
+@
+\subsection{Vector de medias $\mu$}
+<<beta>>=
+@
+<<mu>>=
+@
+\subsection{Muestra $\mathbf{y}$ $Y_i\sim \log-N(\mu_i, 1)$}
+<<Yi>>=
+@
+\subsection{Asignación de datos censurados a la muestra}
+<<censura>>=
+@
+\section{Estimación de parámetros}
+\subsection{Algoritmo EM}
+Este algoritmo es una adaptación de la función \texttt{em.regcen.completa()} adaptado para la regresión lineal multivariada $\log(Y_i)\sim N(\mu_i,\sigma^2)$:
+<<em.censurada>>=
+@
+\subsection{Transformación de los datos}
+Si $Y_i\sim \log-N(\mu_i,1)$, entonces $\log(Y_i)\sim N(\mu^*_i,\sigma^2)$
+<<trans>>=
+@
+<<yi>>=
+xtable(matrix(y, nrow=5), caption="Muestra aleatoria $\\log(y)$, los datos $\\log(y)>25$ fueron truncados en 25")
+@
+\subsection{Estimación de los parámetros}
+Utilizando el algoritmo modificado, se estimó los parámetros junto con las observaciones faltantes:
+<<input>>=
+@
+En el Cuadro~2 se muestran los coeficientes estimados hasta la $m$-ésima iteración.
+<<coeficientes>>=
+@
+El algoritmo como tal, no converge, por ejemplo, tras \Sexpr{round(m,0)} iteraciones, los valores de $\hat{y}_i$ son:
+<<ycen>>=
+@
+Sin embargo, si el número de iteraciones aumenta, los valores $\hat{y}_i$  crecen sin una cota superior:
+<<input2>>=
+@
+
+<<ycen2>>=
+@
+En el Cuadro~4, se observa que los coeficientes no son iguales a los del Cuadro~2, a pesar de utilizar la misma matriz $\mathbf{X}$ y el mismo vector de observaciones $\mathbf{y}$.
+<<coef2>>=
+<<coeficientes>>
+@
+\section{Conclusiones}
+Por algún motivo el sesgo decrece en las primeras 2 iteraciones, pero después de este punto comienza a crecer lentamente y después rápidamente (estos datos no se muestran).
+
+Faltaría analizar más a fondo el algoritmo para identificar si esto es un error dentro de la función programada o se debe a las características propias de la distribución.
+
+Se descarta que esto sea un efecto ocasionado por una mala muestra porque durante el desarrollo de este trabajo, su utilizó varias muestra distintas, tanto para la matriz $\mathbf{X}$ como para el vector de observaciones $\mathbf{y}$, obteniendo siempre resultados similares en la convergencia.
+\end{document}
